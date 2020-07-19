@@ -3,7 +3,8 @@
 
 GameState::GameState() {
 
-    scoreboard[2] = {0};
+    scoreboard[0] = 0;
+    scoreboard[1] = 0;
     ballIndex = 0;
     teamSize = 3;
     shotClock = 3;
@@ -29,14 +30,14 @@ void GameState::HandleOffense(Action action, int tgt) {
 
     switch (action) {
         case Hold:
-            user[ballIndex]->baseOffense += 10; 
+            user[ballIndex]->offense += 10; 
             break;
         case Shoot:
             shotAttempted = true; 
             break;
         case Pass:
             ballIndex = tgt;
-            user[ballIndex]->baseOffense += 10; 
+            user[ballIndex]->offense += 10; 
             break;
     }
 
