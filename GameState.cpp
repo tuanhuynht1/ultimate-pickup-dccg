@@ -12,7 +12,7 @@ GameState::GameState() {
     hasPosession = true; // 50/50
     shotAttempted = false;
     stealAttempted = false;
-    phase = Start;
+    phase = Main;
 
     // sample players
     cpu[0] = new Player("Stephen Curry", Guard, 94, 70, 92, 32);
@@ -25,24 +25,20 @@ GameState::GameState() {
 
 };
 
-void GameState::Print() {
-    
-    cout << "Score Board: " << userScore << " to " << cpuScore << endl;
-    cout << "Shot Clock: " << shotClock << endl << endl;
+void GameState::HandleOffense(Action action, int tgt) {
 
-    for (int i = 0; i < teamSize; i++) {
-        
-        Player* p = cpu[i];
-        cout << setw(32) << p->name << (i == ballIndex && !hasPosession ? "*" : "") << " ";
-        cout << (hasPosession ? p->defense : p->offense); 
+    switch (action) {
+        case Hold:
+            user[ballIndex]->baseOffense += 10; 
+            break;
+        case Shoot:
+            shotAttempted = true; 
+            break;
+        case Pass:
+            ballIndex = tgt;
+            user[ballIndex]->baseOffense += 10; 
+            break;
     }
-    
-    cout << endl << endl;
 
-    for (int i = 0; i < teamSize; i++) {
-        
-        Player* p = user[i];
-        cout << setw(32) << p->name << (i == ballIndex && hasPosession ? "*" : "") << " ";
-        cout << (hasPosession ? p->offense : p->defense); 
-    }
+    return;
 }

@@ -4,7 +4,8 @@
 
 using namespace std;
 
-enum Phase { Start, Main, Action, Resolution, Rebound };
+enum Phase { Main, Result, Rebound };
+enum Action { Hold, Shoot, Pass };
 
 class GameState {
     
@@ -23,5 +24,5 @@ class GameState {
     Phase phase;
 
     GameState();
-    void Print();
+    void HandleOffense(Action action, int tgt = 0);
 };

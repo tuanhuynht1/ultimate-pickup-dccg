@@ -8,6 +8,8 @@ class Player {
     public:
     string name;
     Position position;
+    int baseOffense;
+    int baseDefense;
     int offense;
     int defense;
     int passing;
