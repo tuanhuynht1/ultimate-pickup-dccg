@@ -1,6 +1,7 @@
 #include "Player.h"
 #include <iostream>
 #include <iomanip>
+#include <stdlib.h>     
 
 using namespace std;
 
@@ -10,7 +11,6 @@ enum Action { Hold, Shoot, Pass };
 class GameState {
     
     public:
-    int scoreboard[2];
     int ballIndex;
     int teamSize;
     int shotClock;
@@ -25,4 +25,6 @@ class GameState {
 
     GameState();
     void HandleOffense(Action action, int tgt = 0);
+    void Reset();
+    bool HandleShotAttempt();
 };

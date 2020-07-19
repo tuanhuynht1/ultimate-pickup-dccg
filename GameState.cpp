@@ -3,8 +3,6 @@
 
 GameState::GameState() {
 
-    scoreboard[0] = 0;
-    scoreboard[1] = 0;
     ballIndex = 0;
     teamSize = 3;
     shotClock = 3;
@@ -42,4 +40,29 @@ void GameState::HandleOffense(Action action, int tgt) {
     }
 
     return;
+}
+
+void GameState::Reset() {
+    shotClock = 3;
+    shotAttempted = false;
+    stealAttempted = false;
+}
+
+bool GameState::HandleShotAttempt() {
+    
+    int shot = hasPosession ? user[ballIndex]->offense : cpu[ballIndex]->offense;
+    int defense = hasPosession ? cpu[ballIndex]->defense : user[ballIndex]->defense;
+    
+    double r = rand() % (shot + defense);
+
+    cout << shot << " " << r << " sucess? " << (r <= shot) << endl;
+
+    if (r <= shot) {
+
+        hasPosession ? userScore += 2 : cpuScore += 2;
+        return true;
+    }
+    else {
+        return false;
+    }
 }

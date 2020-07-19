@@ -1,6 +1,7 @@
 #include "GameState.h"
 #include <iostream>
 #include <sstream>
+#include <time.h>      
 
 using namespace std;
 
@@ -11,15 +12,18 @@ int main() {
     
     GameState G = GameState();
 
+    srand(time(NULL));
+
     cout << endl << setw(64) << "Ball Hot!" << endl << endl;
-    
-    while (G.scoreboard[0] < 21 && G.scoreboard[1] < 21) {
+
+    while (G.userScore < 21 && G.cpuScore < 21) {
 
         string input;
         switch (G.phase) {
             
             // ----------------------------- MAIN PHASE -------------------------------//
             case Main:
+
                 Print(G);
 
                 if (G.hasPosession) {
@@ -34,20 +38,20 @@ int main() {
 
                             case 'h': 
                                 G.HandleOffense(Hold); 
-                                cout << endl << setw(32) << G.user[G.ballIndex]->name << " has the ball!";
+                                cout << endl << setw(16) << G.user[G.ballIndex]->name << " has the ball!";
                                 Continue();
                                 break;
 
                             case 's':
                                 G.HandleOffense(Shoot); 
-                                cout << endl << setw(32) << G.user[G.ballIndex]->name << " takes a shot!";
+                                cout << endl << setw(16) << G.user[G.ballIndex]->name << " takes a shot!";
                                 Continue();
                                 break;
 
                             case '1':
                                 if (G.ballIndex != 0) {
                                     G.HandleOffense(Pass, 0); 
-                                    cout << endl << setw(32) << G.user[0]->name << " gets the ball!";
+                                    cout << endl << setw(16) << G.user[0]->name << " gets the ball!";
                                     Continue();
                                 }
                                 else {
@@ -59,7 +63,7 @@ int main() {
                             case '2':
                                 if (G.ballIndex != 1) {
                                     G.HandleOffense(Pass, 1); 
-                                    cout << endl << setw(32) << G.user[1]->name << " gets the ball!";
+                                    cout << endl << setw(16) << G.user[1]->name << " gets the ball!";
                                     Continue();
                                 }
                                 else {
@@ -71,7 +75,7 @@ int main() {
                             case '3':
                                 if (G.ballIndex != 2) {
                                     G.HandleOffense(Pass, 2); 
-                                    cout << endl << setw(32) << G.user[2]->name << " gets the ball!";
+                                    cout << endl << setw(16) << G.user[2]->name << " gets the ball!";
                                     Continue();
                                 }
                                 else {
@@ -90,17 +94,54 @@ int main() {
                 }
 
                 else {
+                    cin.get();
                     // defense
                     // cpu offense
                 }
 
-                G.phase = G.shotAttempted || G.stealAttempted  ? Result : Main;
+                G.shotClock--;
+                G.phase = G.shotAttempted || G.stealAttempted || G.shotClock == 0 ? Result : Main;
                 break;
 
             // ----------------------------- RESULT PHASE -------------------------------//
             case Result:
+
+                if (G.stealAttempted) {
+                    break;
+                }
+
+                if (G.shotAttempted) {
+                    
+                    if (G.HandleShotAttempt()) {
+                         cout << endl << setw(16) << "Swish!";
+                         G.phase = Main;
+                    }
+                    else {
+                        cout << endl << setw(16) << "Clank!";
+                        G.phase = Rebound;
+                    }
+
+                    G.Reset();
+                    Continue();
+                }
+
+                else if (G.shotClock == 0) {
+                    
+                    G.hasPosession = !G.hasPosession;
+                    G.Reset();
+
+                    cout << endl << setw(16) << "Shot clock violation!";
+                    Continue();
+
+                    G.phase = Main;
+                }
+          
                 break;
 
+                // ----------------------------- RESULT PHASE -------------------------------//
+                case Rebound:
+                    exit(0);
+                    break;
         }
         
     }
@@ -121,7 +162,7 @@ void Print(const GameState& G) {
     for (int i = 0; i < G.teamSize; i++) {
         
         Player* p = G.cpu[i];
-        cout << setw(32) << i+1 << ". " << p->name << (i == G.ballIndex && !G.hasPosession ? "*" : "") << " ";
+        cout << setw(16) << i+1 << ". " << p->name << (i == G.ballIndex && !G.hasPosession ? "*" : "") << " ";
         cout << (G.hasPosession ? p->defense : p->offense); 
     }
     
@@ -130,7 +171,7 @@ void Print(const GameState& G) {
     for (int i = 0; i < G.teamSize; i++) {
         
         Player* p = G.user[i];
-        cout << setw(32) << i+1 << ". " << p->name << (i == G.ballIndex && G.hasPosession ? "*" : "") << " ";
+        cout << setw(16) << i+1 << ". " << p->name << (i == G.ballIndex && G.hasPosession ? "*" : "") << " ";
         cout << (G.hasPosession ? p->offense : p->defense); 
     }
 }
