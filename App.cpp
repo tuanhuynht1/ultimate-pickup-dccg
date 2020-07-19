@@ -128,19 +128,25 @@ int main() {
                 else if (G.shotClock == 0) {
                     
                     G.hasPosession = !G.hasPosession;
-                    G.Reset();
 
                     cout << endl << setw(16) << "Shot clock violation!";
                     Continue();
 
                     G.phase = Main;
+                    G.Reset();
                 }
           
                 break;
 
                 // ----------------------------- RESULT PHASE -------------------------------//
                 case Rebound:
-                    exit(0);
+
+                    G.HandleRebound();
+
+                    cout << endl << setw(16) << (G.hasPosession ? G.user[G.ballIndex]->name : G.cpu[G.ballIndex]->name) << " grabs the rebound!";
+                    Continue();
+
+                    G.phase = Main;
                     break;
         }
         

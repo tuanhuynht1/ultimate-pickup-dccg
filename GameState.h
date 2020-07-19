@@ -2,6 +2,7 @@
 #include <iostream>
 #include <iomanip>
 #include <stdlib.h>     
+#include <vector>
 
 using namespace std;
 
@@ -27,4 +28,5 @@ class GameState {
     void HandleOffense(Action action, int tgt = 0);
     void Reset();
     bool HandleShotAttempt();
+    void HandleRebound();
 };
