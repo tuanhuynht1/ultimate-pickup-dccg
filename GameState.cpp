@@ -5,12 +5,13 @@ GameState::GameState() {
 
     ballIndex = 0;
     teamSize = 3;
-    shotClock = 3;
+    shotClock = 5;
     cpuScore = 0;
     userScore = 0;
-    hasPosession = true; // 50/50
+    hasPosession = false; // 50/50
     shotAttempted = false;
     stealAttempted = false;
+    shotContested = false;
     phase = Main;
 
     // sample players
@@ -42,10 +43,30 @@ void GameState::HandleOffense(Action action, int tgt) {
     return;
 }
 
+void GameState::HandleDefense(Action action, int tgt) {
+
+    switch (action) {
+        case Steal:
+            stealAttempted = true;
+            stealIndex = tgt;
+            break;
+    }
+}
+
 void GameState::Reset() {
-    shotClock = 3;
+    shotClock = 5;
     shotAttempted = false;
     stealAttempted = false;
+    shotContested = false;
+}
+
+void GameState::ResetStats() {
+    for (int i = 0; i < teamSize; i++) {
+        user[i]->defense = user[i]->baseDefense;
+        user[i]->offense = user[i]->baseOffense;
+        cpu[i]->defense = cpu[i]->baseDefense;
+        cpu[i]->offense = cpu[i]->baseOffense;
+    }
 }
 
 bool GameState::HandleShotAttempt() {
@@ -62,6 +83,28 @@ bool GameState::HandleShotAttempt() {
     }
     else {
         return false;
+    }
+}
+
+bool GameState::HandleStealAttempt() {
+    
+    if (stealIndex == ballIndex && !shotAttempted) {
+        hasPosession = !hasPosession;
+        return true;
+    }
+    else {
+        hasPosession ? user[stealIndex]->defense -= 40 : cpu[stealIndex]->defense -= 40;
+        return false;
+    }
+}
+
+void GameState::HandleShotContest() {
+
+    if (contestIndex == ballIndex && shotAttempted) {
+        hasPosession ? cpu[contestIndex]->defense += 20 : user[contestIndex]->defense += 20;
+    }
+    else {
+        hasPosession ? cpu[contestIndex]->defense -= 20 : user[contestIndex]->defense -= 20;
     }
 }
 
@@ -92,4 +135,5 @@ void GameState::HandleRebound() {
             break;
         }
     }
+    ResetStats();
 }

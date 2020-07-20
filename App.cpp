@@ -94,26 +94,73 @@ int main() {
                 }
 
                 else {
-                    cin.get();
-                    // defense
+                    
+                    cout << endl << endl;
+                    
+                    for (int i = 0; i < G.teamSize; i++) {
+                        
+                        cout << G.user[i]->name << "'s Defensive Action: ";
+                        getline(cin, input);
+
+                        switch (input[0]) {
+                            case 's':
+                                if (!G.stealAttempted) {
+                                    G.stealIndex = i;
+                                    G.stealAttempted = true;
+                                }
+                                break;
+
+                            case 'c':
+                                if (!G.shotContested) {
+                                    G.contestIndex = i;
+                                    G.shotContested = true;
+                                }
+                                break;
+
+                            default: break;
+                        }
+                    }
+
                     // cpu offense
                 }
 
                 G.shotClock--;
-                G.phase = G.shotAttempted || G.stealAttempted || G.shotClock == 0 ? Result : Main;
+                G.phase = G.shotAttempted || G.stealAttempted || G.shotContested || G.shotClock == 0 ? Result : Main;
                 break;
 
             // ----------------------------- RESULT PHASE -------------------------------//
             case Result:
 
                 if (G.stealAttempted) {
-                    break;
+                    
+                    if (G.HandleStealAttempt()) {
+
+                        cout << endl << setw(16) << (G.hasPosession ? G.user[G.ballIndex]->name : G.cpu[G.ballIndex]->name) << " with the steal!";
+                        G.phase = Main;
+
+                        G.Reset();
+                        G.ResetStats();
+                        Continue();
+                        break;
+                    }
+                    else {
+                        G.stealAttempted = false;
+                        G.phase = Main;
+                    }
+                }
+
+                if (G.shotContested) {
+                    G.HandleShotContest();
+                    G.shotContested = false;
+                    G.phase = Main;
                 }
 
                 if (G.shotAttempted) {
                     
                     if (G.HandleShotAttempt()) {
                          cout << endl << setw(16) << "Swish!";
+                         G.hasPosession = !G.hasPosession;
+                         G.ResetStats();
                          G.phase = Main;
                     }
                     else {
@@ -128,6 +175,8 @@ int main() {
                 else if (G.shotClock == 0) {
                     
                     G.hasPosession = !G.hasPosession;
+                    G.ballIndex = 0;
+                    G.ResetStats();
 
                     cout << endl << setw(16) << "Shot clock violation!";
                     Continue();
@@ -138,7 +187,7 @@ int main() {
           
                 break;
 
-                // ----------------------------- RESULT PHASE -------------------------------//
+                // ----------------------------- REBOUND PHASE -------------------------------//
                 case Rebound:
 
                     G.HandleRebound();
